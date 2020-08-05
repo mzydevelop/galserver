@@ -16,6 +16,7 @@ if($_GET['mod'] == 'register') {
 
 define('APPTYPEID', 126);
 define('CURSCRIPT', 'connect');
+define('NOT_IN_MOBILE_API', 1);
 
 require_once './source/class/class_core.php';
 require_once './source/function/function_home.php';
@@ -36,6 +37,7 @@ if(!$_G['setting']['connect']['allow']) {
 define('CURMODULE', $mod);
 runhooks();
 
-$connectService = Cloud::loadClass('Service_Connect');
+require_once DISCUZ_ROOT.'/source/plugin/qqconnect/lib/Connect.php';
+$connectService = new Cloud_Service_Connect();
 require_once libfile('connect/'.$mod, 'plugin/qqconnect');
 ?>

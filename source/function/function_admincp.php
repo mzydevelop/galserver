@@ -198,8 +198,10 @@ function showmenu($key, $menus, $return = 0) {
 	if(is_array($menus)) {
 		foreach($menus as $menu) {
 			if($menu[0] && $menu[1]) {
-				list($action, $operation, $do) = explode('_', $menu[1]);
-				$menu[1] = $action.($operation ? '&operation='.$operation.($do ? '&do='.$do : '') : '');
+				if(strpos($menu[1], 'plugins&operation=config') === false){
+					list($action, $operation, $do) = explode('_', $menu[1]);
+					$menu[1] = $action.($operation ? '&operation='.$operation.($do ? '&do='.$do : '') : '');
+				}
 				$body .= '<li><a href="'.(substr($menu[1], 0, 4) == 'http' ? $menu[1] : ADMINSCRIPT.'?action='.$menu[1]).'" hidefocus="true" target="'.($menu[2] ? $menu[2] : 'main').'"'.($menu[3] ? $menu[3] : '').'><em onclick="menuNewwin(this)" title="'.cplang('nav_newwin').'"></em>'.cplang($menu[0]).'</a></li>';
 			} elseif($menu[0] && $menu[2]) {
 				if($menu[2] == 1) {
@@ -250,7 +252,7 @@ function cpmsg($message, $url = '', $type = '', $values = array(), $extra = '', 
 		default: $classname = 'marginbot normal';break;
 	}
 	if($url) {
-		$url = substr($url, 0, 5) == 'http:' ? $url : ADMINSCRIPT.'?'.$url;
+		$url = preg_match('/^https?:\/\//is', $url) ? $url : ADMINSCRIPT.'?'.$url;
 	}
 	$message = "<h4 class=\"$classname\">$message</h4>";
 	$url .= $url && !empty($_GET['scrolltop']) ? '&scrolltop='.intval($_GET['scrolltop']) : '';
@@ -747,12 +749,7 @@ function showsetting($setname, $varname, $value, $type = 'radio', $disabled = ''
 		return;
 	}
 	if(!isset($_G['showsetting_multi'])) {
-		if(!$nofaq) {
-			$faqurl = 'http://faq.comsenz.com?type=admin&ver='.$_G['setting']['version'].'&action='.rawurlencode($_GET['action']).'&operation='.rawurlencode($_GET['operation']).'&key='.rawurlencode($setname);
-			showtablerow($noborder.'onmouseover="setfaq(this, \'faq'.$setid.'\')"', 'colspan="2" class="td27" s="1"', $name.'<a id="faq'.$setid.'" class="faq" title="'.cplang('setting_faq_title').'" href="'.$faqurl.'" target="_blank" style="display:none">&nbsp;&nbsp;&nbsp;</a>');
-		} else {
-			showtablerow('', 'colspan="2" class="td27" s="1"', $name);
-		}
+		showtablerow('', 'colspan="2" class="td27" s="1"', $name);
 	} else {
 		if(empty($_G['showsetting_multijs'])) {
 			$_G['setting_JS'] .= 'var ss = new Array();';

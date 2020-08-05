@@ -263,7 +263,7 @@ if(!$gid && (!defined('FORUM_INDEX_PAGE_MEMORY') || !FORUM_INDEX_PAGE_MEMORY)) {
 				$forumlist[$forum['fup']]['posts'] += $forum['posts'];
 				$forumlist[$forum['fup']]['todayposts'] += $forum['todayposts'];
 				if($_G['setting']['subforumsindex'] && $forumlist[$forum['fup']]['permission'] == 2 && !($forumlist[$forum['fup']]['simple'] & 16) || ($forumlist[$forum['fup']]['simple'] & 8)) {
-					$forumurl = !empty($forum['domain']) && !empty($_G['setting']['domain']['root']['forum']) ? 'http://'.$forum['domain'].'.'.$_G['setting']['domain']['root']['forum'] : 'forum.php?mod=forumdisplay&fid='.$forum['fid'];
+					$forumurl = !empty($forum['domain']) && !empty($_G['setting']['domain']['root']['forum']) ? $_G['scheme'].'://'.$forum['domain'].'.'.$_G['setting']['domain']['root']['forum'] : 'forum.php?mod=forumdisplay&fid='.$forum['fid'];
 					$forumlist[$forum['fup']]['subforums'] .= (empty($forumlist[$forum['fup']]['subforums']) ? '' : ', ').'<a href="'.$forumurl.'" '.(!empty($forum['extra']['namecolor']) ? ' style="color: ' . $forum['extra']['namecolor'].';"' : '') . '>'.$forum['name'].'</a>';
 				}
 			}
@@ -451,6 +451,13 @@ function get_index_announcements() {
 	return $announcements;
 }
 
+function replace_formhash($timestamp, $input) {
+	global $_G;
+	$temp_formhash = substr(md5(substr($timestamp, 0, -3).substr($_G['config']['security']['authkey'], 3, -3)), 8, 8);
+	$formhash = constant("FORMHASH");
+	return preg_replace('/(name=[\'|\"]formhash[\'|\"] value=[\'\"]|formhash=)'.$temp_formhash.'/ismU', '${1}'.$formhash, $input);
+}
+
 function get_index_page_guest_cache() {
 	global $_G;
 	$indexcache = getcacheinfo(0);
@@ -458,15 +465,16 @@ function get_index_page_guest_cache() {
 		@unlink($indexcache['filename']);
 		define('CACHE_FILE', $indexcache['filename']);
 	} elseif($indexcache['filename']) {
-		@readfile($indexcache['filename']);
-		$updatetime = dgmdate($indexcache['filemtime'], 'H:i:s');
-		$gzip = $_G['gzipcompress'] ? ', Gzip enabled' : '';
-		echo "<script type=\"text/javascript\">
-			if($('debuginfo')) {
-				$('debuginfo').innerHTML = '. This page is cached  at $updatetime $gzip .';
-			}
-			</script>";
-		echo '</body></html>';
+		$start_time = microtime(TRUE);
+		$filemtime = $indexcache['filemtime'];
+		ob_start(function($input) use (&$filemtime) {
+			return replace_formhash($filemtime, $input);
+		});
+		readfile($indexcache['filename']);
+		$updatetime = dgmdate($filemtime, 'Y-m-d H:i:s');
+		$gzip = $_G['gzipcompress'] ? ', Gzip On' : '';
+		echo '<script type="text/javascript">$("debuginfo") ? $("debuginfo").innerHTML = ", Updated at '.$updatetime.', Processed in '.sprintf("%0.6f", microtime(TRUE) - $start_time).' second(s)'.$gzip.'." : "";</script></body></html>';
+		ob_end_flush();
 		exit();
 	}
 }

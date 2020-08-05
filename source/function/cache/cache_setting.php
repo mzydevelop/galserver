@@ -477,6 +477,8 @@ function build_cache_setting() {
 	$data['output'] = $output;
 	$data['connect'] = in_array('qqconnect', $data['plugins']['available']) ? $data['connect'] : array();
 
+	$data['parseflv'] = get_cachedata_discuzcode_parseflv();
+
 	savecache('setting', $data);
 	$_G['setting'] = $data;
 }
@@ -922,15 +924,11 @@ function get_cachedata_spacenavs() {
 		}
 		$nav['subcode'] = $nav['allowsubnew'] ? '<span><a href="'.$nav['suburl'].'"'.($nav['target'] == 1 ? ' target="_blank"' : '').$nav['extra'].'>'.$nav['subname'].'</a></span>' : '';
 		if($nav['name'] != '{hr}') {
-			if(in_array($nav['name'], array('{userpanelarea1}', '{userpanelarea2}'))) {
-				$nav['code'] = str_replace(array('{', '}'), '', $nav['name']);
-			} else {
 				$nav['code'] = '<li>'.$nav['subcode'].'<a href="'.$nav['url'].'"'.($nav['title'] ? ' title="'.$nav['title'].'"' : '').($nav['target'] == 1 ? ' target="_blank"' : '').'>'.$nav['icon'].$nav['name'].'</a></li>';
-			}
 		} else {
 			$nav['code'] = '</ul><hr class="da" /><ul>';
 		}
-		$id = $nav['type'] == 0 && !in_array($nav['name'], array('{userpanelarea1}', '{userpanelarea2}')) ? $nav['identifier'] : 100 + $nav['id'];
+		$id = $nav['type'] == 0  ? $nav['identifier'] : 100 + $nav['id'];
 		$data['spacenavs'][$id] = array('available' => $nav['available'], 'navname' => $nav['name'], 'code' => $nav['code'], 'level' => $nav['level']);
 	}
 	return $data['spacenavs'];
@@ -1022,6 +1020,22 @@ function get_cachedata_threadprofile_nodeparse($id, $type, $name, $s, $e, $extra
 	$hash = random(8);
 	$_G['cachedata_threadprofile_code'][$id][$type]['{'.$hash.'}'] = array($name, $s, $e, $extra);
 	return '{'.$hash.'}';
+}
+
+function get_cachedata_discuzcode_parseflv() {
+	$mediadir = DISCUZ_ROOT.'./source/function/media';
+	$parseflv = array();
+	if(file_exists($mediadir)) {
+		$mediadirhandle = dir($mediadir);
+		while($entry = $mediadirhandle->read()) {
+			if(!in_array($entry, array('.', '..')) && preg_match("/^media\_([\_\w]+)\.php$/", $entry, $entryr) && substr($entry, -4) == '.php' && is_file($mediadir.'/'.$entry)) {
+				$checkurl = array();
+				@include_once libfile('media/'.$entryr[1], 'function');
+				$parseflv[$entryr[1]] = $checkurl;
+			}
+		}
+	}
+	return $parseflv;
 }
 
 function writetojscache() {

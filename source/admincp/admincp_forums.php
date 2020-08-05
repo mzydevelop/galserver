@@ -468,9 +468,6 @@ var rowtypedata = [
 		C::t('forum_moderator')->delete_by_fid($source);
 		C::t('common_member_forum_buylog')->delete_by_fid($target);
 
-		$log_handler = Cloud::loadClass('Cloud_Service_SearchHelper');
-		$log_handler->myThreadLog('mergeforum', array('fid' => $source, 'otherid' => $target));
-
 		$query = C::t('forum_access')->fetch_all_by_fid_uid($source);
 		foreach($query as $access) {
 			C::t('forum_access')->insert(array('uid' => $access['uid'], 'fid' => $target, 'allowview' => $access['allowview'], 'allowpost' => $access['allowpost'], 'allowreply' => $access['allowreply'], 'allowgetattach' => $access['allowgetattach']), false, true);
@@ -628,7 +625,7 @@ var rowtypedata = [
 			showsetting('forums_edit_extend_forum_horizontal', 'forumcolumnsnew', $mforum[0]['forumcolumns'], 'text');
 			showsetting('forums_edit_extend_cat_sub_horizontal', 'catforumcolumnsnew', $mforum[0]['catforumcolumns'], 'text');
 			if(!empty($_G['setting']['domain']['root']['forum'])) {
-				showsetting('forums_edit_extend_domain', '', '', 'http://<input type="text" name="domainnew" class="txt" value="'.$mforum[0]['domain'].'" style="width:100px; margin-right:0px;" >.'.$_G['setting']['domain']['root']['forum']);
+				showsetting('forums_edit_extend_domain', '', '', $_G['scheme'].'://<input type="text" name="domainnew" class="txt" value="'.$mforum[0]['domain'].'" style="width:100px; margin-right:0px;" >.'.$_G['setting']['domain']['root']['forum']);
 			} else {
 				showsetting('forums_edit_extend_domain', 'domainnew', '', 'text', 'disabled');
 			}
@@ -800,7 +797,7 @@ var rowtypedata = [
 				showsetting('forums_edit_basic_keys', 'keysnew', $forumkeys[$fid], 'text');
 				if(!empty($_G['setting']['domain']['root']['forum'])) {
 					$iname = $multiset ? "multinew[{$_G[showsetting_multi]}][domainnew]" : 'domainnew';
-					showsetting('forums_edit_extend_domain', '', '', 'http://<input type="text" name="'.$iname.'" class="txt" value="'.$forum['domain'].'" style="width:100px; margin-right:0px;" >.'.$_G['setting']['domain']['root']['forum']);
+					showsetting('forums_edit_extend_domain', '', '', $_G['scheme'].'://<input type="text" name="'.$iname.'" class="txt" value="'.$forum['domain'].'" style="width:100px; margin-right:0px;" >.'.$_G['setting']['domain']['root']['forum']);
 				} elseif(!$multiset) {
 					showsetting('forums_edit_extend_domain', 'domainnew', '', 'text', 'disabled');
 				}
@@ -1873,9 +1870,6 @@ EOT;
 		deletedomain($fid, 'forum');
 		deletedomain($fid, 'subarea');
 		if($currow + $pp > $total) {
-
-			$log_handler = Cloud::loadClass('Cloud_Service_SearchHelper');
-			$log_handler->myThreadLog('delforum', array('fid' => $fid));
 			C::t('forum_forum')->delete_by_fid($fid);
 			C::t('common_nav')->delete_by_type_identifier(5, $fid);
 			C::t('home_favorite')->delete_by_id_idtype($fid, 'fid');

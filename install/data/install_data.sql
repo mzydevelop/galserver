@@ -52,7 +52,6 @@ INSERT INTO pre_common_cron VALUES ('10','1','system','每日验证问答更新'
 INSERT INTO pre_common_cron VALUES ('11','1','system','每日标签更新','cron_tag_daily.php','1269746633','1269792000','-1','-1','0','0');
 INSERT INTO pre_common_cron VALUES ('12','1','system','每日勋章更新','cron_medal_daily.php','1269746634','1269792000','-1','-1','0','0');
 INSERT INTO pre_common_cron VALUES ('13','1','system','清理过期动态','cron_cleanfeed.php','1269746634','1269792000','-1','-1','0','0');
-INSERT INTO pre_common_cron VALUES ('14','1','system','每日获取安全补丁','cron_checkpatch_daily.php','1269746639','1269792000','-1','-1','2','22');
 INSERT INTO pre_common_cron VALUES ('15','1','system','定时发布主题','cron_publish_halfhourly.php','1269746639','1269792000','-1','-1','-1','0	30');
 INSERT INTO pre_common_cron VALUES ('16','1','system','每周广播归档','cron_follow_daily.php','1269746639','1269792000','-1','-1','02','0');
 INSERT INTO pre_common_cron VALUES ('17','1','system','更新每日查看数','cron_todayviews_daily.php','1321500558','1321556400','-1','-1','3','0	5	10	15	20	25	30	35	40	45	50	55');
@@ -60,11 +59,8 @@ INSERT INTO pre_common_cron VALUES ('18','0','system','每日用户表优化','c
 INSERT INTO pre_common_cron VALUES ('19','1','system','统计今日热帖','cron_todayheats_daily.php','1269746623','1269792000','-1','-1','0','0');
 INSERT INTO pre_common_cron VALUES ('20','1','system','更新版块最后发表(防水墙相关)','cron_security_cleanup_lastpost.php','1269746623','1269792000','-1','-1','7','0');
 
-INSERT INTO pre_common_friendlink VALUES ('1','0','官方论坛','http://www.discuz.net','提供最新 Discuz! 产品新闻、软件下载与技术交流','static/image/common/logo_88_31.gif','2');
-INSERT INTO pre_common_friendlink VALUES ('2','4','专用主机','http://www.verydz.com/','','','2');
-INSERT INTO pre_common_friendlink VALUES ('3','2','漫游平台','http://www.manyou.com/','','','2');
-INSERT INTO pre_common_friendlink VALUES ('4','3','Yeswan','http://www.yeswan.com','','','2');
-INSERT INTO pre_common_friendlink VALUES ('5','1','Comsenz','http://www.comsenz.com','','','2');
+INSERT INTO pre_common_friendlink VALUES ('1','0','官方论坛','https://www.discuz.net','提供最新 Discuz! 产品新闻、软件下载与技术交流','static/image/common/logo_88_31.gif','2');
+INSERT INTO pre_common_friendlink VALUES ('2','4','应用商店','https://addon.dismall.com/','','','2');
 
 
 
@@ -147,7 +143,6 @@ INSERT INTO pre_common_nav VALUES ('','0','门户','Portal','portal.php','1','0'
 INSERT INTO pre_common_nav VALUES ('','0','论坛','BBS','forum.php','2','0','0','1','2','0','0','0', 0, '', '', '', 0, '');
 INSERT INTO pre_common_nav VALUES ('','0','群组','Group','group.php','3','0','0','-1','7','0','0','0', 0, '', '', '', 0, '');
 INSERT INTO pre_common_nav VALUES ('','0','动态','Space','home.php','4','0','0','-1','8','0','0','0', 0, '', '', '', 0, '');
-INSERT INTO pre_common_nav VALUES ('','0','游戏','Manyou','userapp.php','5','0','0','1','6','0','0','0', 0, '', '', '', 0, '');
 INSERT INTO pre_common_nav VALUES ('','0','插件','Plugin','#','6','0','0','1','9','0','0','0', 0, '', '', '', 0, '');
 INSERT INTO pre_common_nav VALUES ('','0','帮助','Help','misc.php?mod=faq','7','0','0','0','10','0','0','0', 0, '', '', '', 0, '');
 INSERT INTO pre_common_nav VALUES ('','0','排行榜','Ranklist','misc.php?mod=ranklist','8','0','0','-1','16','0','0','0',  0, '', '', '', 0, '');
@@ -170,9 +165,7 @@ INSERT INTO pre_common_nav VALUES ('', '0', '相册', '', 'home.php?mod=space&do
 INSERT INTO pre_common_nav VALUES ('', '0', '分享', '', 'home.php?mod=space&do=share', 'share', 0, 0, -1, 4, 0, 0, 0, 0, '{STATICURL}image/feed/share.gif', '添加', 'home.php?mod=spacecp&ac=share', 2, '');
 INSERT INTO pre_common_nav VALUES ('', '0', '记录', '', 'home.php?mod=space&do=doing', 'doing', 0, 0, -1, 5, 0, 0, 0, 0, '{STATICURL}image/feed/doing.gif', '', '', 2, '');
 INSERT INTO pre_common_nav VALUES ('', '0', '广播', '', 'home.php?mod=follow', 'follow', 0, 0, -1, 6, 0, 0, 0, 0, '{STATICURL}image/feed/follow.gif', '', '', 2, '');
-INSERT INTO pre_common_nav VALUES ('', '0', '{userpanelarea1}', '', '', '', 0, 0, 1, 7, 0, 0, 0, 0, '', '', '', 2, '');
 INSERT INTO pre_common_nav VALUES ('', '0', '{hr}', '', '', '', 0, 1, 1, 8, 0, 0, 0, 0, '', '', '', 2, '');
-INSERT INTO pre_common_nav VALUES ('', '0', '{userpanelarea2}', '', '', '', 0, 0, 1, 9, 0, 0, 0, 0, '', '', '', 2, '');
 
 INSERT INTO pre_common_nav VALUES ('', '0', '好友', '', 'home.php?mod=space&do=friend', 'friend', 0, 0, 0, 1, 0, 0, 0, 0, '{STATICURL}image/feed/friend_b.png', '', '', 3, '');
 INSERT INTO pre_common_nav VALUES ('', '0', '帖子', '', 'forum.php?mod=guide&view=my', 'thread', 0, 0, 0, 2, 0, 0, 0, 0, '{STATICURL}image/feed/thread_b.png', '', '', 3, '');
@@ -466,9 +459,9 @@ INSERT INTO pre_common_setting VALUES ('showsettings','7');
 INSERT INTO pre_common_setting VALUES ('showsignatures','1');
 INSERT INTO pre_common_setting VALUES ('sigviewcond','0');
 INSERT INTO pre_common_setting VALUES ('sitemessage','a:5:{s:4:\"time\";s:1:\"3\";s:8:\"register\";s:0:\"\";s:5:\"login\";s:0:\"\";s:9:\"newthread\";s:0:\"\";s:5:\"reply\";s:0:\"\";}');
-INSERT INTO pre_common_setting VALUES ('sitename','Comsenz Inc.');
+INSERT INTO pre_common_setting VALUES ('sitename','DiscuzX');
 INSERT INTO pre_common_setting VALUES ('siteuniqueid','KD1Q6Vbd03ALJ34u');
-INSERT INTO pre_common_setting VALUES ('siteurl','http://www.comsenz.com/');
+INSERT INTO pre_common_setting VALUES ('siteurl','https://www.discuz.net/');
 INSERT INTO pre_common_setting VALUES ('smcols','8');
 INSERT INTO pre_common_setting VALUES ('smrows','5');
 INSERT INTO pre_common_setting VALUES ('smthumb','20');
@@ -744,7 +737,7 @@ INSERT INTO `pre_common_stylevar` (`styleid`, `variable`, `substitute`) VALUES (
 
 
 
-INSERT INTO pre_common_template VALUES ('1','默认模板套系','./template/default','北京康盛新创科技有限责任公司');
+INSERT INTO pre_common_template VALUES ('1','默认模板套系','./template/default','腾讯云计算（北京）有限责任公司');
 
 
 
@@ -1606,12 +1599,6 @@ INSERT INTO pre_common_block_style (styleid, blockclass, `name`, template, `hash
 INSERT INTO pre_common_block_style (styleid, blockclass, `name`, template, `hash`, getpic, getsummary, makethumb, settarget, `fields`) VALUES(99, 'html_announcement', '[内置]站点公告', 'a:9:{s:3:"raw";s:193:"<div class="module cl">\r\n<ul>\r\n[loop]\r\n<li><img alt="公告" src="static/image/common/ann_icon.gif"><a href="{url}" title="{title}"{target}>{title}（{starttime}）</a></li>\r\n[/loop]\r\n</ul>\r\n</div>";s:6:"footer";s:0:"";s:6:"header";s:0:"";s:9:"indexplus";a:0:{}s:5:"index";a:0:{}s:9:"orderplus";a:0:{}s:5:"order";a:0:{}s:8:"loopplus";a:0:{}s:4:"loop";s:130:"<li><img alt="公告" src="static/image/common/ann_icon.gif"><a href="{url}" title="{title}"{target}>{title}（{starttime}）</a></li>";}', '1f88cc82', 0, 0, 0, 1, 'a:3:{i:0;s:3:"url";i:1;s:5:"title";i:2;s:9:"starttime";}');
 INSERT INTO pre_common_block_style (styleid, blockclass, `name`, template, `hash`, getpic, getsummary, makethumb, settarget, `fields`) VALUES(100, 'forum_thread', '[内置]帖子图文展示', 'a:9:{s:3:"raw";s:374:"<div class="module cl xld">\r\n[loop]\r\n<dl class="cl">\r\n	<dd class="m"><a href="{url}"{target}><img src="{pic}" width="{picwidth}" height="{picheight}" alt="{title}" /></a></dd>\r\n	<dt><em class="y xg1 xw0"><a href="home.php?mod=space&uid={authorid}"{target}>{author}</a></em><a href="{url}" title="{title}"{target}>{title}</a></dt>\r\n	<dd>{summary}</dd>\r\n</dl>\r\n[/loop]\r\n</div>";s:6:"footer";s:0:"";s:6:"header";s:0:"";s:9:"indexplus";a:0:{}s:5:"index";a:0:{}s:9:"orderplus";a:0:{}s:5:"order";a:0:{}s:8:"loopplus";a:0:{}s:4:"loop";s:320:"<dl class="cl">\r\n	<dd class="m"><a href="{url}"{target}><img src="{pic}" width="{picwidth}" height="{picheight}" alt="{title}" /></a></dd>\r\n	<dt><em class="y xg1 xw0"><a href="home.php?mod=space&uid={authorid}"{target}>{author}</a></em><a href="{url}" title="{title}"{target}>{title}</a></dt>\r\n	<dd>{summary}</dd>\r\n</dl>";}', '881ee4a3', 1, 1, 1, 1, 'a:6:{i:0;s:3:"url";i:1;s:3:"pic";i:2;s:5:"title";i:3;s:8:"authorid";i:4;s:6:"author";i:5;s:7:"summary";}');
 INSERT INTO pre_common_block_style (styleid, blockclass, `name`, template, `hash`, getpic, getsummary, makethumb, settarget, `fields`) VALUES(101, 'group_thread', '[内置]帖子图文列表', 'a:9:{s:3:"raw";s:374:"<div class="module cl xld">\r\n[loop]\r\n<dl class="cl">\r\n	<dd class="m"><a href="{url}"{target}><img src="{pic}" width="{picwidth}" height="{picheight}" alt="{title}" /></a></dd>\r\n	<dt><em class="y xg1 xw0"><a href="home.php?mod=space&uid={authorid}"{target}>{author}</a></em><a href="{url}" title="{title}"{target}>{title}</a></dt>\r\n	<dd>{summary}</dd>\r\n</dl>\r\n[/loop]\r\n</div>";s:6:"footer";s:0:"";s:6:"header";s:0:"";s:9:"indexplus";a:0:{}s:5:"index";a:0:{}s:9:"orderplus";a:0:{}s:5:"order";a:0:{}s:8:"loopplus";a:0:{}s:4:"loop";s:320:"<dl class="cl">\r\n	<dd class="m"><a href="{url}"{target}><img src="{pic}" width="{picwidth}" height="{picheight}" alt="{title}" /></a></dd>\r\n	<dt><em class="y xg1 xw0"><a href="home.php?mod=space&uid={authorid}"{target}>{author}</a></em><a href="{url}" title="{title}"{target}>{title}</a></dt>\r\n	<dd>{summary}</dd>\r\n</dl>";}', 'b67132d6', 1, 1, 1, 1, 'a:6:{i:0;s:3:"url";i:1;s:3:"pic";i:2;s:5:"title";i:3;s:8:"authorid";i:4;s:6:"author";i:5;s:7:"summary";}');
--- [key:dbc27d3d]
-INSERT INTO pre_common_block_style (blockclass, `name`, template, `hash`, getpic, getsummary, makethumb, settarget, `fields`) VALUES('html_myapp', '[内置]应用列表（图标）', 'a:9:{s:3:"raw";s:253:"<div class="module cl ml">\r\n<ul>\r\n[loop]\r\n<li style="width: {picwidth}px;">\r\n<a href="{url}"{target}><img src="{icon}" width="75" height="75" alt="{title}" /></a>\r\n<p><a href="{url}" title="{title}"{target}>{title}</a></p>\r\n</li>\r\n[/loop]\r\n</ul>\r\n</div>";s:6:"footer";s:0:"";s:6:"header";s:0:"";s:9:"indexplus";a:0:{}s:5:"index";a:0:{}s:9:"orderplus";a:0:{}s:5:"order";a:0:{}s:8:"loopplus";a:0:{}s:4:"loop";s:187:"<li style="width: {picwidth}px;">\r\n<a href="{url}"{target}><img src="{icon}" width="75" height="75" alt="{title}" /></a>\r\n<p><a href="{url}" title="{title}"{target}>{title}</a></p>\r\n</li>";}', 'dbc27d3d', 0, 0, 1, 1, 'a:3:{i:0;s:3:"url";i:1;s:4:"icon";i:2;s:5:"title";}');
---[/key]
--- [key:99a6e938]
-INSERT INTO pre_common_block_style (blockclass, `name`, template, `hash`, getpic, getsummary, makethumb, settarget, `fields`) VALUES('html_myapp', '[内置]应用列表（小图标）', 'a:9:{s:3:"raw";s:189:"<div class="module cl xl xl1">\r\n<ol>\r\n[loop]\r\n<li><img class="vm" src="{icon_small}" width="16" height="16" alt="{title}" /> <a href="{url}"{target}>{title}</a></li>\r\n[/loop]\r\n</ol>\r\n</div>";s:6:"footer";s:0:"";s:6:"header";s:0:"";s:9:"indexplus";a:0:{}s:5:"index";a:0:{}s:9:"orderplus";a:0:{}s:5:"order";a:0:{}s:8:"loopplus";a:0:{}s:4:"loop";s:119:"<li><img class="vm" src="{icon_small}" width="16" height="16" alt="{title}" /> <a href="{url}"{target}>{title}</a></li>";}', '99a6e938', 0, 0, 0, 1, 'a:3:{i:0;s:10:"icon_small";i:1;s:5:"title";i:2;s:3:"url";}');
--- [/key]
 -- [key:a2f9089e]
 INSERT INTO pre_common_block_style (blockclass, `name`, template, `hash`, getpic, getsummary, makethumb, settarget, `fields`) VALUES('group_thread', '[内置][群组名]+群组帖子标题', 'a:9:{s:3:"raw";s:177:"<div class="module cl xl xl1">\r\n<ul>\r\n[loop]\r\n<li>[<a href="{groupurl}"{target}>{groupname}</a>] <a href="{url}" title="{title}"{target}>{title}</a></li>\r\n[/loop]\r\n</ul>\r\n</div>";s:6:"footer";s:0:"";s:6:"header";s:0:"";s:9:"indexplus";a:0:{}s:5:"index";a:0:{}s:9:"orderplus";a:0:{}s:5:"order";a:0:{}s:8:"loopplus";a:0:{}s:4:"loop";s:107:"<li>[<a href="{groupurl}"{target}>{groupname}</a>] <a href="{url}" title="{title}"{target}>{title}</a></li>";}', 'a2f9089e', 0, 0, 0, 1, 'a:4:{i:0;s:8:"groupurl";i:1;s:9:"groupname";i:2;s:3:"url";i:3;s:5:"title";}');
 -- [/key]

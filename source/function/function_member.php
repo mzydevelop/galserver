@@ -184,14 +184,14 @@ function getinvite() {
 		$appid = intval($cookies[2]);
 
 		$invite_code = space_key($uid, $appid);
-		if($code == $invite_code) {
-			$inviteprice = 0;
+		if($code === $invite_code) {
 			$member = getuserbyuid($uid);
 			if($member) {
 				$usergroup = C::t('common_usergroup')->fetch($member['groupid']);
-				$inviteprice = $usergroup['inviteprice'];
+				if(!$usergroup['allowinvite'] || $usergroup['inviteprice'] > 0) return array();
+			} else {
+				return array();
 			}
-			if($inviteprice > 0) return array();
 			$result['uid'] = $uid;
 			$result['appid'] = $appid;
 		}
@@ -249,8 +249,8 @@ function crime($fun) {
 		list(, $uid, $action) = $arg_list;
 		return $crimerecord->$fun($uid, $action);
 	} elseif($fun == 'search') {
-		list(, $action, $username, $operator, $startime, $endtime, $reason, $start, $limit) = $arg_list;
-		return $crimerecord->$fun($action, $username, $operator, $startime, $endtime, $reason, $start, $limit);
+		list(, $action, $username, $operator, $starttime, $endtime, $reason, $start, $limit) = $arg_list;
+		return $crimerecord->$fun($action, $username, $operator, $starttime, $endtime, $reason, $start, $limit);
 	} elseif($fun == 'actions') {
 		return crime_action_ctl::$actions;
 	}

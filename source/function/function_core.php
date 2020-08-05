@@ -209,9 +209,6 @@ function dhtmlspecialchars($string, $flags = null) {
 	} else {
 		if($flags === null) {
 			$string = str_replace(array('&', '"', '<', '>'), array('&amp;', '&quot;', '&lt;', '&gt;'), $string);
-			if(strpos($string, '&amp;#') !== false) {
-				$string = preg_replace('/&amp;((#(\d{3,5}|x[a-fA-F0-9]{4}));)/', '&\\1', $string);
-			}
 		} else {
 			if(PHP_VERSION < '5.4.0') {
 				$string = htmlspecialchars($string, $flags);
@@ -310,8 +307,8 @@ function checkrobot($useragent = '') {
 	static $kw_browsers = array('msie', 'netscape', 'opera', 'konqueror', 'mozilla');
 
 	$useragent = strtolower(empty($useragent) ? $_SERVER['HTTP_USER_AGENT'] : $useragent);
-	if(strpos($useragent, 'http://') === false && dstrpos($useragent, $kw_browsers)) return false;
 	if(dstrpos($useragent, $kw_spiders)) return true;
+	if(strpos($useragent, 'http://') === false && dstrpos($useragent, $kw_browsers)) return false;
 	return false;
 }
 function checkmobile() {
@@ -412,7 +409,8 @@ function avatar($uid, $size = 'middle', $returnsrc = FALSE, $real = FALSE, $stat
 	$size = in_array($size, array('big', 'middle', 'small')) ? $size : 'middle';
 	$uid = abs(intval($uid));
 	if(!$staticavatar && !$static) {
-		return $returnsrc ? $ucenterurl.'/avatar.php?uid='.$uid.'&size='.$size.($real ? '&type=real' : '') : '<img src="'.$ucenterurl.'/avatar.php?uid='.$uid.'&size='.$size.($real ? '&type=real' : '').'" />';
+		$timestamp = $uid == $_G['uid'] ? "&ts=1" : "";
+		return $returnsrc ? $ucenterurl.'/avatar.php?uid='.$uid.'&size='.$size.($real ? '&type=real' : '').$timestamp : '<img src="'.$ucenterurl.'/avatar.php?uid='.$uid.'&size='.$size.($real ? '&type=real' : '').$timestamp.'" />';
 	} else {
 		$uid = sprintf("%09d", $uid);
 		$dir1 = substr($uid, 0, 3);
@@ -497,6 +495,9 @@ function checktplrefresh($maintpl, $subtpl, $timecompare, $templateid, $cachefil
 	}
 
 	if(empty($timecompare) || $tplrefresh == 1 || ($tplrefresh > 1 && !($timestamp % $tplrefresh))) {
+		if(!file_exists(DISCUZ_ROOT.$subtpl)){
+			$subtpl = substr($subtpl, 0, -4).'.php';
+		}
 		if(empty($timecompare) || @filemtime(DISCUZ_ROOT.$subtpl) > $timecompare) {
 			require_once DISCUZ_ROOT.'/source/class/class_template.php';
 			$template = new template();
@@ -1038,10 +1039,6 @@ function output() {
 	if(defined('IN_MOBILE')) {
 		mobileoutput();
 	}
-	if(!defined('IN_MOBILE') && !defined('IN_ARCHIVER')) {
-		$tipsService = Cloud::loadClass('Service_DiscuzTips');
-		$tipsService->show();
-	}
 	$havedomain = implode('', $_G['setting']['domain']['app']);
 	if($_G['setting']['rewritestatus'] || !empty($havedomain)) {
 		$content = ob_get_contents();
@@ -1067,6 +1064,9 @@ function output() {
 		if(diskfreespace(DISCUZ_ROOT.'./'.$_G['setting']['cachethreaddir']) > 1000000) {
 			if($fp = @fopen(CACHE_FILE, 'w')) {
 				flock($fp, LOCK_EX);
+				$content = empty($content) ? ob_get_contents() : $content;
+				$temp_formhash = substr(md5(substr($_G['timestamp'], 0, -3).substr($_G['config']['security']['authkey'], 3, -3)), 8, 8);
+				$content = preg_replace('/(name=[\'|\"]formhash[\'|\"] value=[\'\"]|formhash=)('.constant("FORMHASH").')/ismU', '${1}'.$temp_formhash, $content);
 				fwrite($fp, empty($content) ? ob_get_contents() : $content);
 			}
 			@fclose($fp);
@@ -1519,7 +1519,9 @@ function dreferer($default = '') {
 		$_G['referer'] = '';
 	}
 
-	if(!empty($reurl['host']) && !in_array($reurl['host'], array($_SERVER['HTTP_HOST'], 'www.'.$_SERVER['HTTP_HOST'])) && !in_array($_SERVER['HTTP_HOST'], array($reurl['host'], 'www.'.$reurl['host']))) {
+	list($http_host,)=explode(':', $_SERVER['HTTP_HOST']);
+
+	if(!empty($reurl['host']) && !in_array($reurl['host'], array($http_host, 'www.'.$http_host)) && !in_array($http_host, array($reurl['host'], 'www.'.$reurl['host']))) {
 		if(!in_array($reurl['host'], $_G['setting']['domain']['app']) && !isset($_G['setting']['domain']['list'][$reurl['host']])) {
 			$domainroot = substr($reurl['host'], strpos($reurl['host'], '.')+1);
 			if(empty($_G['setting']['domain']['root']) || (is_array($_G['setting']['domain']['root']) && !in_array($domainroot, $_G['setting']['domain']['root']))) {
@@ -1767,13 +1769,16 @@ function sysmessage($message) {
 
 function forumperm($permstr, $groupid = 0) {
 	global $_G;
-
 	$groupidarray = array($_G['groupid']);
 	if($groupid) {
 		return preg_match("/(^|\t)(".$groupid.")(\t|$)/", $permstr);
 	}
+	$groupterms = dunserialize(getuserprofile('groupterms'));
 	foreach(explode("\t", $_G['member']['extgroupids']) as $extgroupid) {
 		if($extgroupid = intval(trim($extgroupid))) {
+			if($groupterms['ext'][$extgroupid] && $groupterms['ext'][$extgroupid] < TIMESTAMP){
+				continue;
+			}
 			$groupidarray[] = $extgroupid;
 		}
 	}
@@ -1871,7 +1876,6 @@ function cknewuser($return=0) {
 }
 
 function manyoulog($logtype, $uids, $action, $fid = '') {
-	helper_manyou::manyoulog($logtype, $uids, $action, $fid);
 }
 
 function useractionlog($uid, $action) {
@@ -1883,11 +1887,11 @@ function getuseraction($var) {
 }
 
 function getuserapp($panel = 0) {
-	return helper_manyou::getuserapp($panel);
+	return '';
 }
 
 function getmyappiconpath($appid, $iconstatus=0) {
-	return helper_manyou::getmyappiconpath($appid, $iconstatus);
+	return '';
 }
 
 function getexpiration() {
@@ -1897,14 +1901,16 @@ function getexpiration() {
 }
 
 function return_bytes($val) {
-    $val = trim($val);
-    $last = strtolower($val{strlen($val)-1});
-    switch($last) {
-        case 'g': $val *= 1024;
-        case 'm': $val *= 1024;
-        case 'k': $val *= 1024;
-    }
-    return $val;
+	$last = strtolower($val{strlen($val)-1});
+	if (!is_numeric($val)) {
+		$val = substr(trim($val), 0, -1);
+	}
+	switch($last) {
+		case 'g': $val *= 1024;
+		case 'm': $val *= 1024;
+		case 'k': $val *= 1024;
+	}
+	return $val;
 }
 
 function iswhitelist($host) {
@@ -1981,15 +1987,6 @@ function updatemoderate($idtype, $ids, $status = 0) {
 }
 
 function userappprompt() {
-	global $_G;
-
-	if($_G['setting']['my_app_status'] && $_G['setting']['my_openappprompt'] && empty($_G['cookie']['userappprompt'])) {
-		$sid = $_G['setting']['my_siteid'];
-		$ts = $_G['timestamp'];
-		$key = md5($sid.$ts.$_G['setting']['my_sitekey']);
-		$uchId = $_G['uid'] ? $_G['uid'] : 0;
-		echo '<script type="text/javascript" src="http://notice.uchome.manyou.com/notice/userNotice?sId='.$sid.'&ts='.$ts.'&key='.$key.'&uchId='.$uchId.'" charset="UTF-8"></script>';
-	}
 }
 
 function dintval($int, $allowarray = false) {
@@ -2012,7 +2009,7 @@ function dintval($int, $allowarray = false) {
 
 
 function makeSearchSignUrl() {
-	return getglobal('setting/my_search_data/status') ? helper_manyou::makeSearchSignUrl() : array();
+	return array();
 }
 
 function get_related_link($extent) {
@@ -2040,7 +2037,7 @@ function check_diy_perm($topic = array(), $flag = '') {
 function strhash($string, $operation = 'DECODE', $key = '') {
 	$key = md5($key != '' ? $key : getglobal('authkey'));
 	if($operation == 'DECODE') {
-		$hashcode = gzuncompress(base64_decode(($string)));
+		$hashcode = gzuncompress(base64_decode($string));
 		$string = substr($hashcode, 0, -16);
 		$hash = substr($hashcode, -16);
 		unset($hashcode);

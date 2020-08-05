@@ -875,7 +875,7 @@ if($_G['forum_cachepid']) {
 	foreach(C::t('forum_postcache')->fetch_all($_G['forum_cachepid']) as $postcache) {
 		if($postcache['rate']) {
 			$postcache['rate'] = dunserialize($postcache['rate']);
-			$postlist[$postcache['pid']]['ratelog'] = $postcache['rate']['ratelogs'];
+			$postlist[$postcache['pid']]['ratelog'] = dhtmlspecialchars($postcache['rate']['ratelogs']);
 			$postlist[$postcache['pid']]['ratelogextcredits'] = $postcache['rate']['extcredits'];
 			$postlist[$postcache['pid']]['totalrate'] = $postcache['rate']['totalrate'];
 		}
@@ -1270,16 +1270,23 @@ function viewthread_procpost($post, $lastvisit, $ordertype, $maxposition = 0) {
 	return $post;
 }
 
+function replace_formhash($timestamp, $input) {
+	global $_G;
+	$temp_formhash = substr(md5(substr($timestamp, 0, -3).substr($_G['config']['security']['authkey'], 3, -3)), 8, 8);
+	$formhash = constant("FORMHASH");
+	return preg_replace('/(name=[\'|\"]formhash[\'|\"] value=[\'\"]|formhash=)'.$temp_formhash.'/ismU', '${1}'.$formhash, $input);
+}
+
 function viewthread_loadcache() {
 	global $_G;
-	$_G['forum']['livedays'] = ceil((TIMESTAMP - $_G['forum']['dateline']) / 86400);
-	$_G['forum']['lastpostdays'] = ceil((TIMESTAMP - $_G['forum']['lastthreadpost']) / 86400);
+	$_G['thread']['livedays'] = ceil((TIMESTAMP - $_G['thread']['dateline']) / 86400);
+	$_G['thread']['lastpostdays'] = ceil((TIMESTAMP - $_G['thread']['lastpost']) / 86400);
+
 	$threadcachemark = 100 - (
-	$_G['forum']['displayorder'] * 15 +
-	$_G['thread']['digest'] * 10 +
-	min($_G['thread']['views'] / max($_G['forum']['livedays'], 10) * 2, 50) +
-	max(-10, (15 - $_G['forum']['lastpostdays'])) +
-	min($_G['thread']['replies'] / $_G['setting']['postperpage'] * 1.5, 15));
+		$_G['thread']['digest'] * 20 +
+		min($_G['thread']['views'] / max($_G['thread']['livedays'], 10) * 2, 50) +
+		max(-10, (15 - $_G['thread']['lastpostdays'])) +
+		min($_G['thread']['replies'] / $_G['setting']['postperpage'] * 1.5, 15));
 	if($threadcachemark < $_G['forum']['threadcaches']) {
 
 		$threadcache = getcacheinfo($_G['tid']);
@@ -1288,11 +1295,18 @@ function viewthread_loadcache() {
 			@unlink($threadcache['filename']);
 			define('CACHE_FILE', $threadcache['filename']);
 		} else {
+			$start_time = microtime(TRUE);
+			$filemtime = $threadcache['filemtime'];
+			ob_start(function($input) use (&$filemtime) {
+				return replace_formhash($filemtime, $input);
+			});
 			readfile($threadcache['filename']);
-
 			viewthread_updateviews($_G['forum_thread']['threadtableid']);
-			$_G['setting']['debug'] && debuginfo();
-			$_G['setting']['debug'] ? die('<script type="text/javascript">document.getElementById("debuginfo").innerHTML = " '.($_G['setting']['debug'] ? 'Updated at '.gmdate("H:i:s", $threadcache['filemtime'] + 3600 * 8).', Processed in '.$debuginfo['time'].' second(s), '.$debuginfo['queries'].' Queries'.($_G['gzipcompress'] ? ', Gzip enabled' : '') : '').'";</script>') : die();
+			$updatetime = dgmdate($filemtime, 'Y-m-d H:i:s');
+			$gzip = $_G['gzipcompress'] ? ', Gzip On' : '';
+			echo '<script type="text/javascript">$("debuginfo") ? $("debuginfo").innerHTML = ", Updated at '.$updatetime.', Processed in '.sprintf("%0.6f", microtime(TRUE) - $start_time).' second(s)'.$gzip.'." : "";</script></body></html>';
+			ob_end_flush();
+			exit();
 		}
 	}
 }
@@ -1357,7 +1371,7 @@ function viewthread_baseinfo($post, $extra) {
 		if($field != 'qq') {
 			$v = profile_show($field, $post);
 		} elseif(!empty($post['qq'])) {
-			$v = '<a href="http://wpa.qq.com/msgrd?v=3&uin='.$post['qq'].'&site='.$_G['setting']['bbname'].'&menu=yes&from=discuz" target="_blank" title="'.lang('spacecp', 'qq_dialog').'"><img src="'.STATICURL.'/image/common/qq_big.gif" alt="QQ" style="margin:0px;"/></a>';
+			$v = '<a href="//wpa.qq.com/msgrd?v=3&uin='.$post['qq'].'&site='.$_G['setting']['bbname'].'&menu=yes&from=discuz" target="_blank" title="'.lang('spacecp', 'qq_dialog').'"><img src="'.STATICURL.'/image/common/qq_big.gif" alt="QQ" style="margin:0px;"/></a>';
 		}
 		if($v) {
 			if(!isset($_G['cache']['profilesetting'])) {

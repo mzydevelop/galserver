@@ -60,7 +60,8 @@ $uchidden = getgpc('uchidden');
 if(in_array($method, array('app_reg', 'ext_info'))) {
 	$isHTTPS = ($_SERVER['HTTPS'] && strtolower($_SERVER['HTTPS']) != 'off') ? true : false;
 	$PHP_SELF = $_SERVER['PHP_SELF'] ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-	$bbserver = 'http'.($isHTTPS ? 's' : '').'://'.preg_replace("/\:\d+/", '', $_SERVER['HTTP_HOST']).($_SERVER['SERVER_PORT'] && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? ':'.$_SERVER['SERVER_PORT'] : '');
+	# $bbserver使用的端口，不能来自于SERVER_PORT，因为dz的服务器端口不一定是用户访问的端口(比如在负载均衡后面)
+	$bbserver = 'http'.($isHTTPS ? 's' : '').'://'.$_SERVER['HTTP_HOST'];
 	$default_ucapi = $bbserver.'/ucenter';
 	$default_appurl = $bbserver.substr($PHP_SELF, 0, strrpos($PHP_SELF, '/') - 8);
 }
@@ -136,7 +137,7 @@ if($method == 'show_license') {
 		'apptagtemplates[fields][url]='.urlencode($lang['tagtemplates_url']);
 
 		$ucapi = preg_replace("/\/$/", '', trim($ucapi));
-		if(empty($ucapi) || !preg_match("/^(http:\/\/)/i", $ucapi)) {
+		if(empty($ucapi) || !preg_match("/^(https?:\/\/)/i", $ucapi)) {
 			show_msg('uc_url_invalid', $ucapi, 0);
 		} else {
 			if(!$ucip) {
@@ -343,7 +344,7 @@ if($method == 'show_license') {
 
 
 		$uid = DZUCFULL ? 1 : $adminuser['uid'];
-		$authkey = substr(md5($_SERVER['SERVER_ADDR'].$_SERVER['HTTP_USER_AGENT'].$dbhost.$dbuser.$dbpw.$dbname.$username.$password.$pconnect.substr($timestamp, 0, 6)), 8, 6).random(10);
+		$authkey = md5($_SERVER['SERVER_ADDR'].$_SERVER['HTTP_USER_AGENT'].$dbhost.$dbuser.$dbpw.$dbname.$username.$password.$pconnect.substr($timestamp, 0, 8)).random(18);
 		$_config['db'][1]['dbhost'] = $dbhost;
 		$_config['db'][1]['dbname'] = $dbname;
 		$_config['db'][1]['dbpw'] = $dbpw;
@@ -482,7 +483,7 @@ if($method == 'show_license') {
 	} else {
 		show_header();
 		echo '</div><div class="main" style="margin-top: -123px;padding-left:30px"><span id="platformIntro"></span>';
-		echo '<iframe frameborder="0" width="700" height="550" allowTransparency="true" src="http://addon.discuz.com/api/outer.php?id=installed&siteurl='.urlencode($default_appurl).'&version='.DISCUZ_VERSION.'"></iframe>';
+		echo '<iframe frameborder="0" width="700" height="550" allowTransparency="true" src="https://addon.dismall.com/api/outer.php?id=installed&siteurl='.urlencode($default_appurl).'&version='.DISCUZ_VERSION.'"></iframe>';
 		echo '<p align="right"><a href="'.$default_appurl.'">'.$lang['install_finish'].'</a></p><br />';
 		echo '</div>';
 		show_footer();

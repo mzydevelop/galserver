@@ -20,6 +20,7 @@ if(@file_exists(DISCUZ_ROOT.'./install/index.php') && !DISCUZ_DEBUG) {
 
 @include_once DISCUZ_ROOT.'./source/discuz_version.php';
 require_once libfile('function/attachment');
+require_once libfile('function/discuzcode');
 $isfounder = isfounder();
 
 $siteuniqueid = C::t('common_setting')->fetch('siteuniqueid');
@@ -110,6 +111,19 @@ foreach(C::t('common_member_verify_info')->group_by_verifytype_count() as $value
 
 cpheader();
 shownav();
+
+require_once libfile('function/cloudaddons');
+$newversion = dunserialize($_G['setting']['cloudaddons_newversion']);
+if(empty($newversion['newversion']) || !is_array($newversion['newversion']) || abs($_G['timestamp'] - $newversion['updatetime']) > 86400 || (isset($_GET['checknewversion']) && $_G['formhash'] == $_GET['formhash'])) {
+	$newversion = json_decode(cloudaddons_open('&mod=app&ac=upgrade'), true);
+	if(!empty($newversion['newversion'])){
+		$newversion['updatetime'] = $_G['timestamp'];
+		C::t('common_setting')->update('cloudaddons_newversion', $newversion);
+		updatecache('setting');
+	}else{
+		$newversion = array();
+	}
+}
 
 showsubmenu('home_welcome', array(), '', array('bbname' => $_G['setting']['bbname']));
 
@@ -240,13 +254,39 @@ showtablerow('', array(), array(
 showtablefooter();
 showformfooter();
 
+showtableheader('Discuz! &#x5F00;&#x6E90;&#x8D21;&#x732E;&#x8005;', 'fixpadding');
+showtablerow('', array('', 'class="td21" style="text-align:right;"'),
+	'<a href="https://gitee.com/ComsenzDiscuz/DiscuzX/contributors?ref=master" class="lightlink2 smallfont" target="_blank">Click Here To See Them</a>'
+);
+showtablefooter();
+
+
 loaducenter();
 
-showtableheader('home_sys_info', 'fixpadding');
+if(empty($newversion['newversion']['qqqun'])){
+  $newversion['newversion']['qqqun'] = '73'.'210'.'36'.'90';
+}
+
+showtableheader('home_sys_info', 'fixpadding left" style="width : 48%;');
 showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight smallfont"'), array(
 	cplang('home_discuz_version'),
-	'Discuz! '.DISCUZ_VERSION.' Release '.DISCUZ_RELEASE
+	'Discuz! '.DISCUZ_VERSION.' R'.DISCUZ_RELEASE.' '.strtoupper(CHARSET).''
 ));
+
+$newversion['newversion'] = !empty($newversion['newversion']) ? $newversion['newversion'] : array();
+
+$downlist = array();
+foreach ($newversion['newversion']['downlist'] as $key => $value){
+   $downlist[] = '<a href="'.diconv($value['url'], 'utf-8', CHARSET).'" target="_blank">'.discuzcode(strip_tags(diconv($value['title'], 'utf-8', CHARSET)), 1, 0).'</a>';
+}
+
+showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight smallfont"'), array(
+	cplang('home_check_newversion'),
+    ($newversion['newversion']['release'] ? ($newversion['newversion']['release'] != DISCUZ_RELEASE ? '<b style="color:red;">' : '').'Discuz! '.$newversion['newversion']['version'].' R'.$newversion['newversion']['release'].' '.strtoupper(CHARSET).' '.($newversion['newversion']['release'] != DISCUZ_RELEASE ? '</b>' : '') : '<a href="https://www.dismall.com/thread-73-1-1.html" target="_blank">&#20320;&#30340;&#26381;&#21153;&#22120;&#26080;&#27861;&#26816;&#27979;&#26032;&#29256;&#65292;&#35831;&#28857;&#20987;&#26597;&#30475;&#26032;&#29256;</a>').
+	  ' <a href="'.ADMINSCRIPT.'?action=index&checknewversion&formhash='.$_G['formhash'].'">[ &#x5237;&#x65B0; ]</a>&nbsp;&nbsp;<br><br>'.
+    (!empty($downlist) ? implode('&#x3001;', $downlist).($newversion['newversion']['qqqun'] ? '<span class="bold">&nbsp;&nbsp;|&nbsp;&nbsp;QQ&#x7FA4;&#xFF1A;'.$newversion['newversion']['qqqun'].'</span>' : '') : '<span class="bold"><a href="https://gitee.com/3dming/DiscuzL/attach_files" target="_blank">&#x6700;&#x65B0;&#x7248;&#x6253;&#x5305;&#x4E0B;&#x8F7D;</a> | QQ&#x7FA4;&#xFF1A;73'.'21'.'03'.'690</span>')
+));
+
 showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight smallfont"'), array(
 	cplang('home_ucclient_version'),
 	'UCenter '.UC_CLIENT_VERSION.' Release '.UC_CLIENT_RELEASE
@@ -277,10 +317,33 @@ showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight smallf
 ));
 showtablefooter();
 
+showtableheader('Discuz! &#x52A8;&#x6001;', 'fixpadding left" style="width : 48%; margin-left: 2%; clear: none;', '', '3');
+if(!empty($newversion['news'])){
+    $newversion['news'] = dhtmlspecialchars($newversion['news']);
+    foreach ($newversion['news'] as $v){
+        showtablerow('', array('', 'class="td21" style="text-align:right;"'), array(
+            '<a href="'.$v['url'].'" target="_blank">'.discuzcode(strip_tags(diconv($v['title'], 'utf-8', CHARSET)), 1, 0).'</a>',
+            '['.discuzcode(strip_tags($v['date']), 1, 0).']',
+        ));
+    }
+} else {
+    showtablerow('', array('', 'class="td21" style="text-align:right;"'), array(
+        '<a href="https://www.dismall.com/" target="_blank">&#x6682;&#x672A;&#x83B7;&#x53D6;&#x5230;&#x52A8;&#x6001;&#xFF0C;&#x8BF7;&#x767B;&#x5F55; Discuz! &#x793E;&#x533A; &#x67E5;&#x770B;&#x3002;</a>',
+        '',
+    ));
+    showtablerow('', array('', 'class="td21" style="text-align:right;"'), array(
+        '<a href="https://gitee.com/3dming/DiscuzL/attach_files" target="_blank">Discuz! X3.4 &#x6700;&#x65B0;&#x7248;&#x672C;&#x4E0B;&#x8F7D;</a>',
+        '',
+    ));
+}
+showtablefooter();
+
+echo '<div class="clear"></div>';
+
 showtableheader('home_dev', 'fixpadding');
 showtablerow('', array('class="vtop td24 lineheight"'), array(
 	cplang('home_dev_copyright'),
-	'<span class="bold"><a href="http://www.comsenz.com" class="lightlink2" target="_blank">&#x5317;&#x4EAC;&#x5EB7;&#x76DB;&#x65B0;&#x521B;&#x79D1;&#x6280;&#x6709;&#x9650;&#x8D23;&#x4EFB;&#x516C;&#x53F8;</a></span>'
+	'<span class="bold">&#x817e;&#x8baf;&#x4e91;&#x8ba1;&#x7b97;&#xff08;&#x5317;&#x4eac;&#xff09;&#x6709;&#x9650;&#x8d23;&#x4efb;&#x516c;&#x53f8;</span>'
 ));
 showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight smallfont team"'), array(
 	cplang('home_dev_manager'),
@@ -311,8 +374,8 @@ showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight team"'
 ));
 showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight team"'), array(
 	cplang('home_dev_thanks'),
-	'<a href="http://www.discuzf.com" class="lightlink2 smallfont" target="_blank">Discuz! Fans</a>
-        <a href="http://www.discuz.net/home.php?mod=space&uid=122246" class="lightlink2 smallfont" target="_blank">Heyond</a>
+	'<a href="http://www.discuzfans.com" class="lightlink2 smallfont" target="_blank">Discuz! Fans</a>
+  <a href="http://www.discuz.net/home.php?mod=space&uid=122246" class="lightlink2 smallfont" target="_blank">Heyond</a>
 	<a href="http://www.discuz.net/home.php?mod=space&uid=632268" class="lightlink2 smallfont" target="_blank">JinboWang</a>
 	<a href="http://www.discuz.net/home.php?mod=space&uid=15104" class="lightlink2 smallfont" target="_blank">Redstone</a>
 	<a href="http://www.discuz.net/home.php?mod=space&uid=10407" class="lightlink2 smallfont" target="_blank">Qiang Liu</a>
@@ -334,10 +397,12 @@ showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight team"'
 ));
 showtablerow('', array('class="vtop td24 lineheight"', 'class="lineheight"'), array(
 	cplang('home_dev_links'),
-	'<a href="http://www.comsenz.com" class="lightlink2" target="_blank">&#x516C;&#x53F8;&#x7F51;&#x7AD9;</a>,
+	'<a href="https://www.dismall.com/" class="lightlink2" target="_blank">Discuz! &#24212;&#29992;&#x8BA8;&#x8BBA;&#x533A;</a>,
+	<a href="http://www.comsenz.com" class="lightlink2" target="_blank">&#x516C;&#x53F8;&#x7F51;&#x7AD9;</a>,
 	<a href="http://www.discuz.net/redirect.php?service" class="lightlink2" target="_blank">&#x8D2D;&#x4E70;&#x6388;&#x6743;</a>,
 	<a href="http://www.discuz.net/" class="lightlink2" target="_blank">&#x8BA8;&#x8BBA;&#x533A;</a>,
-	<a href="'.ADMINSCRIPT.'?action=cloudaddons" class="lightlink2" target="_blank">Discuz! &#24212;&#29992;&#20013;&#24515;</a>
+	<a href="'.ADMINSCRIPT.'?action=cloudaddons" class="lightlink2" target="_blank">Discuz! &#24212;&#29992;&#20013;&#24515;</a>,
+	<a href="https://gitee.com/ComsenzDiscuz/DiscuzX" class="lightlink2" target="_blank">Discuz! X Git</a>
 '));
 showtablefooter();
 

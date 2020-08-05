@@ -291,7 +291,7 @@ class usercontrol extends base {
 		$this->load('misc');
 		$app = $this->cache['apps'][$appid];
 		$apifilename = isset($app['apifilename']) && $app['apifilename'] ? $app['apifilename'] : 'uc.php';
-		if($app['extra']['apppath'] && @include $app['extra']['apppath'].'./api/'.$apifilename) {
+		if($app['extra']['apppath'] && substr(strrchr($apifilename, '.'), 1, 10) == 'php' && @include $app['extra']['apppath'].'./api/'.$apifilename) {
 			$uc_note = new uc_note();
 			return $uc_note->getcredit(array('uid' => $uid, 'credit' => $credit), '');
 		} else {
@@ -344,7 +344,11 @@ class usercontrol extends base {
 		@header("Expires: 0");
 		@header("Cache-Control: private, post-check=0, pre-check=0, max-age=0", FALSE);
 		@header("Pragma: no-cache");
-		header("Content-type: application/xml; charset=utf-8");
+		if(getgpc('base64', 'G')){
+			header("Content-type: text/html; charset=utf-8");
+		}else{
+			header("Content-type: application/xml; charset=utf-8");
+		}
 		$this->init_input(getgpc('agent'));
 		$uid = $this->input('uid');
 		if(empty($uid)) {
@@ -392,23 +396,35 @@ class usercontrol extends base {
 		$filetype = '.jpg';
 		@unlink(UC_DATADIR.'./tmp/upload'.$uid.$filetype);
 
-		if($success) {
-			return '<?xml version="1.0" ?><root><face success="1"/></root>';
-		} else {
-			return '<?xml version="1.0" ?><root><face success="0"/></root>';
+		if(getgpc('base64', 'G')){
+			if($success) {
+				return "<script>window.parent.postMessage('success','*');</script>";
+			} else {
+				return "<script>window.parent.postMessage('failure','*');</script>";
+			}
+		}else{
+			if($success) {
+				return '<?xml version="1.0" ?><root><face success="1"/></root>';
+			} else {
+				return '<?xml version="1.0" ?><root><face success="0"/></root>';
+			}
 		}
 	}
 
 
 	function flashdata_decode($s) {
 		$r = '';
-		$l = strlen($s);
-		for($i=0; $i<$l; $i=$i+2) {
-			$k1 = ord($s[$i]) - 48;
-			$k1 -= $k1 > 9 ? 7 : 0;
-			$k2 = ord($s[$i+1]) - 48;
-			$k2 -= $k2 > 9 ? 7 : 0;
-			$r .= chr($k1 << 4 | $k2);
+		if(getgpc('base64', 'G')){
+			$r = base64_decode($s);
+		}else{
+			$l = strlen($s);
+			for($i=0; $i<$l; $i=$i+2) {
+				$k1 = ord($s[$i]) - 48;
+				$k1 -= $k1 > 9 ? 7 : 0;
+				$k2 = ord($s[$i+1]) - 48;
+				$k2 -= $k2 > 9 ? 7 : 0;
+				$r .= chr($k1 << 4 | $k2);
+			}
 		}
 		return $r;
 	}

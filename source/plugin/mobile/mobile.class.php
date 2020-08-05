@@ -307,9 +307,6 @@ class base_plugin_mobile {
 		$_G['siteurl'] = preg_replace('/api\/mobile\/$/', '', $_G['siteurl']);
 		$_G['setting']['msgforward'] = '';
 		$_G['setting']['cacheindexlife'] = $_G['setting']['cachethreadlife'] = false;
-		if(!$_G['setting']['mobile']['nomobileurl'] && function_exists('diconv') && !empty($_GET['charset'])) {
-			$_GET = mobile_core::diconv_array($_GET, $_GET['charset'], $_G['charset']);
-		}
 		if($_GET['_auth']) {
 			require_once DISCUZ_ROOT.'./source/plugin/wechat/wsq.class.php';
 			$uid = wsq::decodeauth($_GET['_auth']);
@@ -426,25 +423,6 @@ class base_plugin_mobile_forum extends base_plugin_mobile {
 
 class base_plugin_mobile_misc extends base_plugin_mobile {
 
-	function mobile() {
-		global $_G;
-		if(empty($_GET['view']) && !defined('MOBILE_API_OUTPUT')) {
-			if(in_array('mobileoem', $_G['setting']['plugins']['available'])) {
-				loadcache('mobileoem_data');
-			}
-			$_G['setting']['pluginhooks'] = array();
-			$qrfile = DISCUZ_ROOT.'./data/cache/mobile_siteqrcode.png';
-			if(!file_exists($qrfile) || $_G['adminid'] == 1) {
-				require_once DISCUZ_ROOT.'source/plugin/mobile/qrcode.class.php';
-				QRcode::png($_G['siteurl'], $qrfile);
-			}
-			define('MOBILE_API_OUTPUT', 1);
-			$_G['disabledwidthauto'] = 1;
-			define('TPL_DEFAULT', true);
-			include template('mobile:mobile');
-			exit;
-		}
-	}
 
 }
 

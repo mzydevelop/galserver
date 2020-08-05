@@ -27,19 +27,6 @@ function edit_save() {
 	backupContent($('uchome-ttHtmlEditor').value);
 }
 
-function relatekw() {
-	edit_save();
-	var subject = cnCode($('subject').value);
-	var message = cnCode($('uchome-ttHtmlEditor').value);
-	if(message) {
-		message = message.substr(0, 500);
-	}
-	var x = new Ajax();
-	x.get('home.php?mod=spacecp&ac=relatekw&inajax=1&subjectenc=' + subject + '&messageenc=' + message, function(s){
-		$('tag').value = s;
-	});
-}
-
 function downRemoteFile() {
 	edit_save();
 	var formObj = $("articleform");
@@ -206,4 +193,25 @@ function showInnerNav(){
 	if(pagetitle && pagetitle.style.display == 'none') {
 		pagetitle.style.display = '';
 	}
+}
+
+function loadimgsize(imgurl, editor, p) {
+	var editor = !editor ? 'icoImg' : editor;
+	var s = new Object();
+	var p = !p ? '_image' : p;
+	$(editor + p + '_param_2').value = '';
+	$(editor + p + '_param_3').value = '';
+	s.img = new Image();
+	s.img.src = imgurl;
+	s.loadCheck = function () {
+		if($(editor + p + '_param_1').value == imgurl) {
+			if(s.img.complete) {
+				$(editor + p + '_param_2').value = s.img.width ? s.img.width : '';
+				$(editor + p + '_param_3').value = s.img.height ? s.img.height : '';
+			} else {
+				setTimeout(function () {s.loadCheck();}, 100);
+			}
+		}
+	};
+	s.loadCheck();
 }

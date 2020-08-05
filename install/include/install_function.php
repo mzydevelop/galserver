@@ -570,7 +570,7 @@ EOT;
 function show_footer($quit = true) {
 
 	echo <<<EOT
-		<div class="footer">&copy;2001 - 2017 <a href="http://www.comsenz.com/">Comsenz</a> Inc.</div>
+		<div class="footer">Copyright &copy;2001-2020, Tencent Cloud.</div>
 	</div>
 </div>
 </body>
@@ -873,6 +873,8 @@ function dfopen($url, $limit = 0, $post = '', $cookie = '', $bysocket = FALSE, $
 		$ch = curl_init();
 		$ip && curl_setopt($ch, CURLOPT_HTTPHEADER, array("Host: ".$host));
 		curl_setopt($ch, CURLOPT_URL, $scheme.'://'.($ip ? $ip : $host).':'.$port.$path);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		if($post) {
 			curl_setopt($ch, CURLOPT_POST, 1);

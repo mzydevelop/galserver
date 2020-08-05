@@ -79,7 +79,7 @@ if(!empty($_SERVER['QUERY_STRING']) && is_numeric($_SERVER['QUERY_STRING'])) {
 				$jump = true;
 				$domain = C::t('common_domain')->fetch_by_domain_domainroot($_ENV['prefixdomain'], $_ENV['domainroot']);
 				$apphost = $_ENV['domain']['app'][$domain['idtype']] ? $_ENV['domain']['app'][$domain['idtype']] : $_ENV['domain']['app']['default'];
-				$apphost = $apphost ? 'http://'.$apphost.'/' : '';
+				$apphost = $apphost ? $_G['scheme'].'://'.$apphost.'/' : '';
 				switch($domain['idtype']) {
 					case 'home':
 						if($_G['setting']['rewritestatus'] && in_array('home_space', $_G['setting']['rewritestatus'])) {
@@ -109,7 +109,7 @@ if(!empty($_SERVER['QUERY_STRING']) && is_numeric($_SERVER['QUERY_STRING'])) {
 				}
 			} else {
 				if($jump) {
-					$url = empty($_ENV['domain']['app']['default']) ? (!empty($_ENV['domain']['defaultindex']) ? $_ENV['domain']['defaultindex'] : 'forum.php') : 'http://'.$_ENV['domain']['app']['default'];
+					$url = empty($_ENV['domain']['app']['default']) ? (!empty($_ENV['domain']['defaultindex']) ? $_ENV['domain']['defaultindex'] : 'forum.php') : ($_SERVER['HTTPS'] == 'on' ? 'https' : 'http').'://'.$_ENV['domain']['app']['default'];
 				} else {
 					$_ENV['curapp'] = 'forum';
 				}
@@ -124,8 +124,15 @@ if(!empty($url)) {
 	} elseif(isset($_GET['fromuser']) && $_GET['fromuser']) {
 		$url .= sprintf('%sfromuser=%s', $delimiter, rawurlencode($_GET['fromuser']));
 	}
-	header("HTTP/1.1 301 Moved Permanently");
-	header("location: $url");
+	$parse = parse_url($url);
+	if(!isset($parse['host']) && file_exists($parse['path'])) {
+		if(!empty($parse['query'])) {
+			parse_str($parse['query'], $_GET);
+		}
+		require './'.$parse['path'];
+	} else {
+		header("location: $url");
+	}
 } else {
 	require './'.$_ENV['curapp'].'.php';
 }

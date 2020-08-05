@@ -22,6 +22,7 @@ require './source/function/function_admincp.php';
 require './source/function/function_cache.php';
 
 $discuz = C::app();
+$discuz->init_cron = false;
 $discuz->init();
 
 $admincp = new discuz_admincp();
@@ -29,7 +30,7 @@ $admincp->core  = & $discuz;
 $admincp->init();
 
 
-$admincp_actions_founder = array('templates', 'db', 'founder', 'postsplit', 'threadsplit', 'cloudaddons', 'upgrade', 'patch', 'optimizer');
+$admincp_actions_founder = array('templates', 'db', 'founder', 'postsplit', 'threadsplit', 'cloudaddons', 'optimizer');
 $admincp_actions_normal = array('index', 'setting', 'members', 'admingroup', 'usergroups', 'usertag',
 	'forums', 'threadtypes', 'threads', 'moderate', 'attach', 'smilies', 'recyclebin', 'recyclebinpost', 'prune', 'grid',
 	'styles', 'addons', 'plugins', 'tasks', 'magics', 'medals', 'google', 'announce', 'faq', 'ec',

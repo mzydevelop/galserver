@@ -170,7 +170,7 @@ function getranklist_members($offset = 0, $limit = 20) {
 	$topusers = C::t('home_show')->fetch_all_by_unitprice($offset, $limit, true);
 	foreach($topusers as $member) {
 		$member['avatar'] = avatar($member['uid'], 'small');
-		$member['note'] = dhtmlspecialchars($member['note']);
+		$member['note'] = htmlspecialchars(dhtmlspecialchars($member['note']));
 		$members[] = $member;
 	}
 	return $members;
@@ -427,6 +427,9 @@ function getranklist_member_post($num, $orderby) {
 }
 
 function getranklistdata($type, $view = '', $orderby = 'all') {
+	if (!function_exists('getranklist_'.$type)) {
+	    return array();
+	}
 	global $_G;
 	$cache_time = $_G['setting']['ranklist'][$type]['cache_time'];
 	$cache_num =  $_G['setting']['ranklist'][$type]['show_num'];
@@ -440,6 +443,15 @@ function getranklistdata($type, $view = '', $orderby = 'all') {
 
 	$ranklistvars = array();
 	loadcache('ranklist_'.$type);
+	if(!isset($_G['cache']['ranklist_'.$type]) || !is_array($_G['cache']['ranklist_'.$type])) {
+		$_G['cache']['ranklist_'.$type] = array();
+	}
+	if(!isset($_G['cache']['ranklist_'.$type][$view]) || !is_array($_G['cache']['ranklist_'.$type][$view])) {
+		$_G['cache']['ranklist_'.$type][$view] = array();
+	}
+	if(!isset($_G['cache']['ranklist_'.$type][$view][$orderby]) || !is_array($_G['cache']['ranklist_'.$type][$view][$orderby])) {
+		$_G['cache']['ranklist_'.$type][$view][$orderby] = array();
+	}
 	$ranklistvars = & $_G['cache']['ranklist_'.$type][$view][$orderby];
 
 	if(empty($ranklistvars['lastupdated']) || (TIMESTAMP - $ranklistvars['lastupdated'] > $cache_time)) {
